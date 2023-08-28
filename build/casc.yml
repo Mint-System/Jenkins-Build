@@ -1,0 +1,40 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+      - id: ${JENKINS_USER}
+        password: ${JENKINS_PASSWORD}
+  authorizationStrategy:
+    globalMatrix:
+      entries:
+      - group:
+          name: "authenticated"
+          permissions:
+          - "Overall/Read"
+      - user:
+          name: "admin"
+          permissions:
+          - "Overall/Administer"
+  clouds:
+  - docker:
+      dockerApi:
+        connectTimeout: 60
+        dockerHost:
+          uri: "tcp://dind:2375"
+        readTimeout: 60
+      exposeDockerHost: true
+      name: "docker"
+      templates:
+      - connector: "attach"
+        dockerTemplateBase:
+          cpuPeriod: 0
+          cpuQuota: 0
+          image: "jenkins/agent"
+        labelString: "jenkins-agent"
+        name: "agent"
+        pullStrategy: PULL_ALWAYS
+        pullTimeout: 300
+security:
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "acceptFirstConnectionStrategy"

@@ -1,0 +1,57 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+
+function help() {
+echo
+echo "$1 <command> [options]"
+echo
+echo "commands:"
+echo
+column -t -s"|" ./task.md | tail -n +3
+echo
+}
+
+# Set env vars
+export JENKINS_USER=admin
+export JENKINS_PASSWORD=jenkins
+export JENKINS_URL=http://localhost:8080
+
+if [[ -a ".env" ]]; then
+    export $(cat .env | sed 's/#.*//g' | xargs)
+fi
+
+function start() {
+    if test -z "$1"; then
+        docker-compose up -d
+        echo "Open http://localhost:8080 url in your browser."
+        echo "Login with $JENKINS_USER:$JENKINS_PASSWORD"
+    fi
+
+    if [[ "$1" =~ "dind" ]]; then
+        docker-compose up -d dind
+        echo "Access dind with: docker exec -it dind ash"
+    fi
+
+    if [[ "$1" =~ "jenkins" ]]; then
+        docker-compose up --build -d jenkins 
+        echo "Open http://localhost:8080 url in your browser."
+        echo "Login with $JENKINS_USER:$JENKINS_PASSWORD"
+    fi
+}
+
+case "$1" in
+    
+    start)
+        start $2
+        ;;
+    stop)
+        docker-compose stop
+        ;;
+    kill)
+        docker-compose down -v
+        ;;
+    *)
+        help task
+        exit 1
+        ;;
+esac

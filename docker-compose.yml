@@ -1,0 +1,31 @@
+version: "3"
+services:
+  dind:
+    image: docker:dind
+    container_name: dind
+    hostname: dind
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ''
+    volumes:
+      - jenkins-data:/var/jenkins_home
+  jenkins:
+    build:
+      context: build
+      dockerfile: jenkins.Dockerfile
+    container_name: jenkins
+    hostname: jenkins
+    depends_on:
+      - dind
+    privileged: true
+    ports:
+      - "8080:8080"
+    environment:
+      JENKINS_USER: "${JENKINS_USER}"
+      JENKINS_PASSWORD: "${JENKINS_PASSWORD}"
+      JENKINS_URL: "${JENKINS_URL}"
+      DOCKER_HOST: tcp://dind:2375
+    volumes:
+      - jenkins-data:/var/jenkins_home
+volumes:
+  jenkins-data:
