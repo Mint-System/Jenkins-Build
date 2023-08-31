@@ -7,7 +7,7 @@ echo "$1 <command> [options]"
 echo
 echo "commands:"
 echo
-column -t -s"|" ./task.md | tail -n +3
+column -t -s"|" ./task.md | tail -n +4
 echo
 }
 
